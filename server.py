@@ -1085,6 +1085,7 @@ def _sidebar(active: str) -> str:
             (_DESIGN_DOC, "API design", "design", True),
             ("/health", "API health", "health", False),
             ("/network", "Network", "network", False),
+            ("/listed-on", "Listed on", "listed-on", False),
         ]),
         ("Family", [(href, label, "fam-" + label.lower().replace(" ", "-"), True)
                     for label, href in FAMILY_LINKS]),
@@ -1161,7 +1162,7 @@ an ed25519 keypair is all it takes to participate. &nbsp;·&nbsp;
 <br>The MuseFM family: <a href="/network">all our sites →</a> &nbsp;·&nbsp;
 <a href="https://x402-seller-a5et.onrender.com/"><svg style="width:14px;height:14px;vertical-align:-3px;margin-right:4px" viewBox="0 0 24 24" shape-rendering="crispEdges" aria-hidden="true"><g fill="#c2521e"><rect x="3" y="7" width="8" height="11"/><rect x="13" y="7" width="8" height="11"/><rect x="11" y="5" width="2" height="14"/></g></svg>MuseFM Playbook</a> &nbsp;·&nbsp;
 <a href="https://musefm.lol"><svg style="width:14px;height:14px;vertical-align:-3px;margin-right:4px" viewBox="0 0 24 24" shape-rendering="crispEdges" aria-hidden="true"><g fill="#c2521e"><rect x="9" y="3" width="6" height="7"/><rect x="11" y="10" width="2" height="4"/><rect x="8" y="14" width="8" height="2"/><rect x="10" y="16" width="4" height="2"/><rect x="7" y="18" width="10" height="2"/></g></svg>MuseFM</a>
-<br>Accounts for the family live on <a href="https://musefm.lol">MuseFM</a> — your free account is the identity home for every family site.<br>Zuckbot and MuseFM are independent creations — not affiliated with or endorsed by Meta or Mark Zuckerberg.\n</div></footer>
+<br>Accounts for the family live on <a href="https://musefm.lol">MuseFM</a> — your free account is the identity home for every family site.<br>Zuckbot and MuseFM are independent creations — not affiliated with or endorsed by Meta or Mark Zuckerberg.\n<br><span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.7">Listed on</span><br>\n<a href="https://aiagentslisting.com/trustline?utm_source=aiagentslisting&utm_medium=badge&utm_campaign=embed"> <img src="https://aiagentslisting.com/trustline/badge.svg?theme=light" alt="Trustline badge" width="200" height="50" loading="lazy" /> </a>\n</div></footer>
 </body>
 </html>"""
     return HTMLResponse(
@@ -1540,6 +1541,75 @@ __NW_AUTH__
         "The MuseFM family of sites: MuseFM Playbook, MuseFM Trustline, MuseFM.",
         page_url=_public_url("/network"),
         active="network",
+    )
+
+
+# ── Listed-on badges ──────────────────────────────────────────────
+# Directories that list MuseFM Trustline. Each entry carries the
+# directory's own badge snippet verbatim — static, crawler-visible HTML
+# with a dofollow link back to the directory. Add new entries here; the
+# route renders the whole list, no template changes needed.
+_DIRECTORY_BADGES = [
+    {
+        "name": "Prompt-Frenzy AI Directory",
+        "blurb": (
+            "A badge-verified directory of AI tools. We carry their badge "
+            "here; they list MuseFM Trustline there."
+        ),
+        "badge_html": (
+            '<a href="https://www.promptfrenzy.com/directory" rel="noopener" '
+            'target="_blank" title="Featured on PromptFrenzy AI Directory">'
+            '<img src="https://www.promptfrenzy.com/badges/directory.svg" '
+            'alt="Featured on PromptFrenzy AI Directory" width="220" height="44" '
+            'loading="lazy" /></a>'
+        ),
+    },
+    {
+        "name": "AI Agents Listing",
+        "blurb": (
+            "A human-reviewed directory of AI agents. We carry their badge "
+            "here; they list MuseFM Trustline there."
+        ),
+        "badge_html": (
+            '<a href="https://aiagentslisting.com/trustline?utm_source=aiagentslisting&utm_medium=badge&utm_campaign=embed"> '
+            '<img src="https://aiagentslisting.com/trustline/badge.svg?theme=light" '
+            'alt="Trustline badge" width="200" height="50" loading="lazy" /> </a>'
+        ),
+    },
+]
+
+
+@app.get("/listed-on")
+def listed_on_page():
+    """Directories we've been listed on — badge backlink page."""
+    cards = []
+    for b in _DIRECTORY_BADGES:
+        cards.append(
+            '<div class="lo-card"><h3>' + _esc(b["name"]) + "</h3>"
+            "<p>" + _esc(b["blurb"]) + "</p>"
+            '<div class="lo-badge">' + b["badge_html"] + "</div></div>"
+        )
+    body = """<style>
+.lo-wrap{max-width:860px;margin:0 auto;padding:0 24px}
+.lo-wrap h1.lo-h{font-size:1.5rem;line-height:1.4;margin:0 0 10px;color:#1e1b4b}
+.lo-sub{color:#6f6b87;font-size:17px;max-width:660px;margin:0 0 26px}
+.lo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.lo-card{background:#ffffff;border:3px solid #ddd6c2;border-radius:10px;padding:20px;
+box-shadow:6px 6px 0 rgba(194,82,30,.13)}
+.lo-card h3{margin:0 0 8px;font-size:18px;color:#1e1b4b}
+.lo-card p{margin:0 0 14px;color:#6f6b87;font-size:15px}
+.lo-badge img{display:block}
+</style>
+<div class="lo-wrap"><section>
+<h1 class="lo-h">Listed on</h1>
+<p class="lo-sub">Directories where MuseFM Trustline is listed. Each badge links back to the directory that lists us.</p>
+<div class="lo-grid">""" + "".join(cards) + "</div></section></div>"
+    return _page(
+        "Listed on — MuseFM Trustline",
+        body,
+        "Directories where MuseFM Trustline is listed: Prompt-Frenzy AI Directory.",
+        page_url=_public_url("/listed-on"),
+        active="listed-on",
     )
 
 
